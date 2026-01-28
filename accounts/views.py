@@ -8,6 +8,60 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
+from django.contrib.auth.models import User
+
+@api_view(['POST'])
+def register_user(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    confirmed_password = request.data.get('confirmed_password')
+    email = request.data.get('email')
+
+    # 1. Validate input data
+    if not username or not password or not confirmed_password or not email:
+        return Response(
+            {"detail": "All fields are required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 2. Check if passwords match
+    if password != confirmed_password:
+        return Response(
+            {"detail": "Passwords do not match"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 3. Check if username already exists
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"detail": "Username already exists"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    # 4. Check if email already exists
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"detail": "Email already exists"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 5. Create User
+    User.objects.create_user(
+        username=username,
+        password=password,
+        email=email
+    )
+
+    # 6. Return success response
+    return Response(
+        {"detail": "User created successfully!"},
+        status=status.HTTP_201_CREATED
+    )
+
+
+
+
+
+
 @api_view(['POST'])
 def login_user(request):
     print("LOGIN VIEW CALLED")

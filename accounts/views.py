@@ -154,3 +154,41 @@ def logout_user(request):
             {"detail": "Invalid token"},
             status=status.HTTP_401_UNAUTHORIZED
         )
+    
+@api_view(['POST'])
+def refresh_token(request):
+    refresh_token = request.COOKIES.get('refresh_token')
+
+    if not refresh_token:
+        return Response(
+            {"detail": "Refresh token missing"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    try:
+        token = RefreshToken(refresh_token)
+        new_access = token.access_token
+
+        response = Response(
+            {
+                "detail": "Token refreshed",
+                "access": str(new_access)
+            },
+            status=status.HTTP_200_OK
+        )
+
+        response.set_cookie(
+            key='access_token',
+            value=str(new_access),
+            httponly=True,
+            secure=False,   # production -> True
+            samesite='Lax'
+        )
+
+        return response
+
+    except Exception:
+        return Response(
+            {"detail": "Refresh token invalid"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )

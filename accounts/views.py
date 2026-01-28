@@ -10,6 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(['POST'])
 def login_user(request):
+    print("LOGIN VIEW CALLED")
+
     username = request.data.get('username')
     password = request.data.get('password')
 
@@ -32,9 +34,17 @@ def login_user(request):
     access = refresh.access_token
 
     response = Response(
-        {"detail": "Login successful"},
+           {
+            "detail": "Login successfully!",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            }
+        },
         status=status.HTTP_200_OK
     )
+    
 
     response.set_cookie(
         key='access_token',
@@ -51,5 +61,6 @@ def login_user(request):
         secure=False,
         samesite='Lax'
     )
+
 
     return response

@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 # Create your views here.
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
@@ -118,3 +119,38 @@ def login_user(request):
 
 
     return response
+
+
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+def logout_user(request):
+    try:
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if not refresh_token:
+            return Response(
+                {"detail": "Not authenticated"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        response = Response(
+            {
+              "detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."
+            },
+            status=status.HTTP_200_OK
+        )
+
+        # Usuń cookies
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+
+        return response
+
+    except Exception:
+        return Response(
+            {"detail": "Invalid token"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
 # Create your views here.
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
@@ -10,8 +11,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny
+
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
@@ -64,6 +68,8 @@ def register_user(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
+@authentication_classes([])  
 def login_user(request):
     print("LOGIN VIEW CALLED")
 
@@ -122,7 +128,7 @@ def login_user(request):
 
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def logout_user(request):
     try:
         refresh_token = request.COOKIES.get('refresh_token')
@@ -156,6 +162,7 @@ def logout_user(request):
         )
     
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def refresh_token(request):
     refresh_token = request.COOKIES.get('refresh_token')
 

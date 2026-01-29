@@ -6,6 +6,6 @@ urlpatterns = [
     path('register/', register_user),
     path('login/', login_user),
     path('logout/', logout_user),
-     path('token/refresh/', refresh_token),
+    path('token/refresh/', refresh_token),
 
 ]  

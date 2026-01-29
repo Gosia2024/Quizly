@@ -46,3 +46,10 @@ def quiz_detail(request, quiz_id):
 
     serializer = QuizSerializer(quiz)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_quizzes(request):
+    quizzes = Quiz.objects.filter(owner=request.user)
+    serializer = QuizSerializer(quizzes, many=True)
+    return Response(serializer.data)

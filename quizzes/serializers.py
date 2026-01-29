@@ -15,8 +15,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             "question_title",
             "question_options",
             "answer",
-            "created_at",
-            "updated_at"
+            # "created_at",
+            # "updated_at"
         ]
 
 

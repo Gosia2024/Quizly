@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -53,3 +54,21 @@ def list_quizzes(request):
     quizzes = Quiz.objects.filter(owner=request.user)
     serializer = QuizSerializer(quizzes, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def quiz_detail(request, id):
+    # 1. finde or 404
+    quiz = get_object_or_404(Quiz, id=id)
+
+    # 2. sprawdź czy należy do użytkownika
+    if quiz.owner != request.user:
+        return Response(
+            {"detail": "Access denied - quiz does not belong to user"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # 3. back quiz
+    serializer = QuizSerializer(quiz)
+    return Response(serializer.data, status=status.HTTP_200_OK)

@@ -7,6 +7,7 @@ from rest_framework import status
 from .models import Quiz
 from .serializers import QuizSerializer
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_quiz(request):
@@ -34,41 +35,42 @@ def create_quiz(request):
     serializer = QuizSerializer(quiz)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def quiz_detail(request, quiz_id):
-    try:
-        quiz = Quiz.objects.get(id=quiz_id, owner=request.user)
-    except Quiz.DoesNotExist:
-        return Response(
-            {"detail": "Quiz not found"},
-            status=status.HTTP_404_NOT_FOUND
-        )
-
-    serializer = QuizSerializer(quiz)
-    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_quizzes(request):
     quizzes = Quiz.objects.filter(owner=request.user)
     serializer = QuizSerializer(quizzes, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
-def quiz_detail(request, id):
-    # 1. finde or 404
-    quiz = get_object_or_404(Quiz, id=id)
+def quiz_detail(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
 
-    # 2. sprawdź czy należy do użytkownika
+    # Sprawdzenie właściciela
     if quiz.owner != request.user:
         return Response(
             {"detail": "Access denied - quiz does not belong to user"},
             status=status.HTTP_403_FORBIDDEN
         )
 
-    # 3. back quiz
-    serializer = QuizSerializer(quiz)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    # ---------- GET ----------
+    if request.method == 'GET':
+        serializer = QuizSerializer(quiz)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # ---------- PATCH ----------
+    if request.method == 'PATCH':
+        serializer = QuizSerializer(
+            quiz,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

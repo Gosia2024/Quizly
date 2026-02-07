@@ -7,6 +7,15 @@ from rest_framework import status
 from .models import Quiz
 from .serializers import QuizSerializer
 
+from .utils import (
+    normalize_youtube_url,
+    download_audio,
+    transcribe_audio,
+    build_prompt,
+    generate_quiz_json
+)
+from .models import Quiz, Question, QuestionOption
+from django.db import transaction
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -14,26 +23,81 @@ def create_quiz(request):
     url = request.data.get("url")
 
     if not url:
-        return Response(
-            {"detail": "URL is required"},
-            status=status.HTTP_400_BAD_REQUEST
+        return Response({"detail": "URL required"}, status=400)
+
+    try:
+        clean_url = normalize_youtube_url(url)
+    except ValueError:
+        return Response({"detail": "Invalid YouTube URL"}, status=400)
+
+    try:
+        # 1. download audio
+        audio_path = download_audio(clean_url)
+
+        # 2. transcribe
+        transcript = transcribe_audio(audio_path)
+
+        # 3. prompt
+        prompt = build_prompt(transcript)
+
+        # 4. generate quiz json
+        quiz_data = generate_quiz_json(prompt)
+
+    except Exception as e:
+        return Response({"detail": f"AI processing failed: {str(e)}"}, status=500)
+
+    # 5. Save everything atomically
+    with transaction.atomic():
+        quiz = Quiz.objects.create(
+            title=quiz_data["title"],
+            description=quiz_data["description"],
+            video_url=clean_url,
+            owner=request.user
         )
 
-    if "youtube.com" not in url and "youtu.be" not in url:
-        return Response(
-            {"detail": "Invalid YouTube URL"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        for q in quiz_data["questions"]:
+            question = Question.objects.create(
+                quiz=quiz,
+                question_title=q["question_title"],
+                answer=q["answer"]
+            )
 
-    quiz = Quiz.objects.create(
-        title="Generated Quiz",
-        description="Quiz generated from YouTube video",
-        video_url=url,
-        owner=request.user
-    )
+            for opt in q["question_options"]:
+                QuestionOption.objects.create(
+                    question=question,
+                    option_text=opt
+                )
 
     serializer = QuizSerializer(quiz)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.data, status=201)
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def create_quiz(request):
+#     url = request.data.get("url")
+
+#     if not url:
+#         return Response(
+#             {"detail": "URL is required"},
+#             status=status.HTTP_400_BAD_REQUEST
+#         )
+
+#     if "youtube.com" not in url and "youtu.be" not in url:
+#         return Response(
+#             {"detail": "Invalid YouTube URL"},
+#             status=status.HTTP_400_BAD_REQUEST
+#         )
+
+#     quiz = Quiz.objects.create(
+#         title="Generated Quiz",
+#         description="Quiz generated from YouTube video",
+#         video_url=url,
+#         owner=request.user
+#     )
+
+#     serializer = QuizSerializer(quiz)
+#     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])

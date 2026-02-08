@@ -1,22 +1,27 @@
+"""
+Authentication views for the Quizly application.
+Handles user registration, JWT session management via cookies, and blacklisting.
+"""
+
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-
-# Create your views here.
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-
-
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
+    """
+    Authenticate user and set JWT tokens in HTTPOnly cookies.
+    
+    Returns: User profile data and sets 'access_token'/'refresh_token' cookies.
+    """
     username = request.data.get('username')
     password = request.data.get('password')
     confirmed_password = request.data.get('confirmed_password')
@@ -63,14 +68,13 @@ def register_user(request):
     )
 
 
-
-
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @authentication_classes([])  
 def login_user(request):
+    """
+    Invalidate the refresh token and clear all authentication cookies.
+    """
     print("LOGIN VIEW CALLED")
 
     username = request.data.get('username')
@@ -130,6 +134,9 @@ def login_user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def logout_user(request):
+    """
+    Invalidate the refresh token and clear all authentication cookies.
+    """
     try:
         refresh_token = request.COOKIES.get('refresh_token')
 
@@ -164,6 +171,9 @@ def logout_user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def refresh_token(request):
+    """
+    Issue a new access token using a valid refresh token from cookies.
+    """
     refresh_token = request.COOKIES.get('refresh_token')
 
     if not refresh_token:

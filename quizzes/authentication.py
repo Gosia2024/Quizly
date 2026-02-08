@@ -1,7 +1,14 @@
-# quizzes/authentication.py
+"""
+Custom authentication classes for the Quizly project.
+Handles JWT token extraction from HTTPOnly cookies.
+"""
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CookieJWTAuthentication(JWTAuthentication):
+    """
+    Custom authentication class that overrides the default JWTAuthentication
+    to look for the access token in HTTPOnly cookies instead of the Authorization header.
+    """
     def authenticate(self, request):
         raw_token = request.COOKIES.get("access_token")
         if raw_token is None:

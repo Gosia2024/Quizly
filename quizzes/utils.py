@@ -1,3 +1,10 @@
+"""
+AI Engine for Quizly.
+Handles the full pipeline:
+1. YouTube audio extraction (yt-dlp)
+2. Speech-to-Text transcription (OpenAI Whisper)
+3. Quiz generation (Google Gemini Flash 2.0)
+"""
 import os
 import re
 import json
@@ -10,7 +17,7 @@ from google import genai
 
 
 # ================= LOGGING =================
-
+# Configuration of logging for monitoring external API calls and errors
 logger = logging.getLogger(__name__)
 
 
@@ -134,6 +141,13 @@ Transcript:
 # ========== 5. Ask Gemini ==========
 
 def generate_quiz_json(prompt: str) -> dict:
+    """
+    Sends the prompt to Gemini-2.0-flash and parses the response.
+    Cleans markdown code blocks if the model includes them accidentally.
+
+    Returns:
+        dict: Parsed quiz data ready for database insertion.
+    """
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("Missing GEMINI_API_KEY in environment variables")

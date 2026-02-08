@@ -68,7 +68,7 @@ Quizly allows users to generate quizzes automatically from YouTube videos.
 If you want to run the project quickly:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/quizly.git
+git clone https://github.com/Gosia2024/quizly.git
 cd quizly
 
 python -m venv venv

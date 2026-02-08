@@ -25,28 +25,19 @@ def create_quiz(request):
     if not url:
         return Response({"detail": "URL required"}, status=400)
 
+    # normalize URL
     try:
         clean_url = normalize_youtube_url(url)
     except ValueError:
         return Response({"detail": "Invalid YouTube URL"}, status=400)
 
-    try:
-        # 1. download audio
-        audio_path = download_audio(clean_url)
+    # AI FLOW
+    audio_path = download_audio(clean_url)
+    transcript = transcribe_audio(audio_path)
+    prompt = build_prompt(transcript)
+    quiz_data = generate_quiz_json(prompt)
 
-        # 2. transcribe
-        transcript = transcribe_audio(audio_path)
-
-        # 3. prompt
-        prompt = build_prompt(transcript)
-
-        # 4. generate quiz json
-        quiz_data = generate_quiz_json(prompt)
-
-    except Exception as e:
-        return Response({"detail": f"AI processing failed: {str(e)}"}, status=500)
-
-    # 5. Save everything atomically
+    # SAVE
     with transaction.atomic():
         quiz = Quiz.objects.create(
             title=quiz_data["title"],

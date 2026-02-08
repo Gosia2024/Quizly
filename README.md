@@ -80,7 +80,9 @@ python manage.py migrate
 python manage.py runserve
 ```
 👉 Don’t forget to install FFmpeg (see below).
+
 💻 Installation (Windows)
+
 1️⃣ Clone repository
 ```bash
 git clone https://github.com/Gosia2024/quizly.git

@@ -147,14 +147,13 @@ SIMPLE_JWT = {
 }
 
 # print(os.getenv("GEMINI_API_KEY"))
-# 1. Usuń lub ustaw na False:
+
 CORS_ALLOW_ALL_ORIGINS = False 
 
-# 2. Upewnij się, że te adresy są poprawne:
+
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
 ]
 
-# 3. DODAJ TO KONIECZNIE:
 CORS_ALLOW_CREDENTIALS = True

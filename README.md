@@ -52,7 +52,7 @@ Quizly allows users to generate quizzes automatically from YouTube videos.
 
 # 🛠 Tech Stack
 
-- Python  
+- Python  3.12+
 - Django  
 - Django REST Framework  
 - SimpleJWT  
@@ -71,7 +71,7 @@ If you want to run the project quickly:
 git clone https://github.com/Gosia2024/quizly.git
 cd quizly
 
-python -m venv venv
+python -m venv env
 venv\Scripts\activate
 
 pip install -r requirements.txt

@@ -14,7 +14,9 @@ import os
 
 load_dotenv()
 from pathlib import Path
-
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY not loaded")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -44,14 +46,16 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
      'accounts',
        'quizzes', 
+        'corsheaders',
      
     'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -143,3 +147,14 @@ SIMPLE_JWT = {
 }
 
 # print(os.getenv("GEMINI_API_KEY"))
+# 1. Usuń lub ustaw na False:
+CORS_ALLOW_ALL_ORIGINS = False 
+
+# 2. Upewnij się, że te adresy są poprawne:
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+]
+
+# 3. DODAJ TO KONIECZNIE:
+CORS_ALLOW_CREDENTIALS = True

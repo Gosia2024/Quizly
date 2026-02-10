@@ -71,7 +71,7 @@ If you want to run the project quickly:
 git clone https://github.com/Gosia2024/quizly.git
 cd quizly
 
-python -m venv env
+python -m venv venv
 venv\Scripts\activate
 
 pip install -r requirements.txt

@@ -7,7 +7,7 @@ Defines endpoints for:
 - Retrieving detailed information about a specific quiz.
 """
 from django.urls import path
-from quizzes.views import create_quiz, list_quizzes, quiz_detail
+from quizzes.api.views import create_quiz, list_quizzes, quiz_detail
 
 urlpatterns = [
     path("createQuiz/", create_quiz),

@@ -3,7 +3,7 @@ AI Engine for Quizly.
 Handles the full pipeline:
 1. YouTube audio extraction (yt-dlp)
 2. Speech-to-Text transcription (OpenAI Whisper)
-3. Quiz generation (Google Gemini Flash 2.0)
+3. Quiz generation (Google Gemini Flash 2.5)
 """
 import os
 import re
@@ -142,7 +142,7 @@ Transcript:
 
 def generate_quiz_json(prompt: str) -> dict:
     """
-    Sends the prompt to Gemini-2.0-flash and parses the response.
+    Sends the prompt to Gemini-2.5-flash and parses the response.
     Cleans markdown code blocks if the model includes them accidentally.
 
     Returns:
@@ -155,7 +155,7 @@ def generate_quiz_json(prompt: str) -> dict:
     client = genai.Client(api_key=api_key)
 
     response = client.models.generate_content(
-       model="gemini-2.0-flash",
+       model="gemini-2.5-flash",
         contents=prompt
     )
 

@@ -8,16 +8,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Quiz
+from ..models import Quiz
+
 from .serializers import QuizSerializer
-from .utils import (
+from ..utils import (
     normalize_youtube_url,
     download_audio,
     transcribe_audio,
     build_prompt,
     generate_quiz_json
 )
-from .models import Quiz, Question, QuestionOption
+from ..models import Quiz, Question, QuestionOption
 from django.db import transaction
 
 @api_view(['POST'])

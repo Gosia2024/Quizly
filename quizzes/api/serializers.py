@@ -4,7 +4,7 @@ Handles the conversion between Quiz/Question models and JSON format,
 including nested options and questions.
 """
 from rest_framework import serializers
-from .models import Quiz, Question, QuestionOption
+from ..models import Quiz, Question, QuestionOption
 
 class QuestionSerializer(serializers.ModelSerializer):
     """
